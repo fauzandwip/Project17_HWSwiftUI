@@ -11,6 +11,7 @@
 		7B70FAF92A729DA00042CCAD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B70FAF82A729DA00042CCAD /* ContentView.swift */; };
 		7B70FAFB2A729DA20042CCAD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B70FAFA2A729DA20042CCAD /* Assets.xcassets */; };
 		7B70FAFE2A729DA20042CCAD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B70FAFD2A729DA20042CCAD /* Preview Assets.xcassets */; };
+		7BC3A4A72A72B50100AA3C64 /* GesturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC3A4A62A72B50100AA3C64 /* GesturesView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		7B70FAF82A729DA00042CCAD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7B70FAFA2A729DA20042CCAD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B70FAFD2A729DA20042CCAD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		7BC3A4A62A72B50100AA3C64 /* GesturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +55,7 @@
 			children = (
 				7B70FAF62A729DA00042CCAD /* FlashzillaApp.swift */,
 				7B70FAF82A729DA00042CCAD /* ContentView.swift */,
+				7BC3A4A32A72B02F00AA3C64 /* Introduction */,
 				7B70FAFA2A729DA20042CCAD /* Assets.xcassets */,
 				7B70FAFC2A729DA20042CCAD /* Preview Content */,
 			);
@@ -65,6 +68,14 @@
 				7B70FAFD2A729DA20042CCAD /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		7BC3A4A32A72B02F00AA3C64 /* Introduction */ = {
+			isa = PBXGroup;
+			children = (
+				7BC3A4A62A72B50100AA3C64 /* GesturesView.swift */,
+			);
+			path = Introduction;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -137,6 +148,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7BC3A4A72A72B50100AA3C64 /* GesturesView.swift in Sources */,
 				7B70FAF92A729DA00042CCAD /* ContentView.swift in Sources */,
 				7B70FAF72A729DA00042CCAD /* FlashzillaApp.swift in Sources */,
 			);
