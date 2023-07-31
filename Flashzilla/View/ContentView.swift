@@ -42,10 +42,22 @@ struct ContentView: View {
                 ZStack {
                     ForEach(0..<cards.count, id: \.self) { index in
                         CardView(card: cards[index]) {
-                            removeCard(at: index)
+                            withAnimation {
+                                removeCard(at: index)
+                            }
                         }
                             .stacked(at: index, in: cards.count)
                     }
+                }
+                .allowsHitTesting(timeRemaining > 0)
+                
+                if cards.isEmpty {
+                    Button("Start Again", action: resetCards)
+                    .padding()
+                    .foregroundColor(.black)
+                    .background(.white)
+                    .clipShape(Capsule())
+                    .padding(.vertical)
                 }
             }
             
@@ -79,7 +91,9 @@ struct ContentView: View {
         }
         .onChange(of: scenePhase) { newValue in
             if newValue == .active {
-                isActive = true
+                if !cards.isEmpty {
+                    isActive = true
+                }
             } else {
                 isActive = false
             }
@@ -88,6 +102,16 @@ struct ContentView: View {
     
     func removeCard(at index: Int) {
         cards.remove(at: index)
+        
+        if cards.isEmpty {
+            isActive = false
+        }
+    }
+    
+    func resetCards() {
+        cards = Array<Card>(repeating: Card.example, count: 10)
+        timeRemaining = 100
+        isActive = true
     }
 }
 
