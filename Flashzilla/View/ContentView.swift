@@ -19,10 +19,12 @@ struct ContentView: View {
     @Environment(\.accessibilityVoiceOverEnabled) var voiceOverEnabled
     @Environment(\.scenePhase) var scenePhase
     
-    @State private var cards = Array<Card>(repeating: Card.example, count: 10)
+    @State private var cards = [Card]()
     @State private var timeRemaining = 100
     @State private var isActive = false
+    @State private var showingEditScreen = false
     
+    static let saveKey = "Cards"
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
@@ -39,7 +41,7 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .background(.black.opacity(0.75))
                     .clipShape(Capsule())
-                    
+                
                 ZStack {
                     ForEach(0..<cards.count, id: \.self) { index in
                         CardView(card: cards[index]) {
@@ -56,12 +58,32 @@ struct ContentView: View {
                 
                 if cards.isEmpty {
                     Button("Start Again", action: resetCards)
-                    .padding()
-                    .foregroundColor(.black)
-                    .background(.white)
-                    .clipShape(Capsule())
-                    .padding(.vertical)
+                        .padding()
+                        .foregroundColor(.black)
+                        .background(.white)
+                        .clipShape(Capsule())
+                        .padding(.vertical)
                 }
+            }
+            
+            VStack {
+                HStack {
+                    Spacer()
+                    
+                    Button {
+                        showingEditScreen = true
+                    } label: {
+                        Image(systemName: "plus.circle")
+                    }
+                    .padding()
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .background(.black.opacity(0.7))
+                    .clipShape(Circle())
+                    .padding()
+                }
+                
+                Spacer()
             }
             
             if differentiateWithooutColor || voiceOverEnabled {
@@ -119,6 +141,8 @@ struct ContentView: View {
                 isActive = false
             }
         }
+        .sheet(isPresented: $showingEditScreen, onDismiss: resetCards, content: EditCards.init)
+        .onAppear(perform: resetCards)
     }
     
     func removeCard(at index: Int) {
@@ -131,9 +155,17 @@ struct ContentView: View {
     }
     
     func resetCards() {
-        cards = Array<Card>(repeating: Card.example, count: 10)
         timeRemaining = 100
         isActive = true
+        loadData()
+    }
+    
+    func loadData() {
+        if let data = UserDefaults.standard.data(forKey: ContentView.saveKey) {
+            if let decoded = try? JSONDecoder().decode([Card].self, from: data) {
+                cards = decoded
+            }
+        }
     }
 }
 
