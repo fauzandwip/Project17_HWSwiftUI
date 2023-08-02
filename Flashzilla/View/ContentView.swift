@@ -29,11 +29,16 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
+            
+            // MARK: - background
             Image(decorative: "background")
                 .resizable()
                 .ignoresSafeArea()
             
+            // MARK: - card and time
             VStack {
+                
+                // MARK: - time
                 Text("Time: \(timeRemaining)")
                     .font(.title)
                     .padding(.horizontal, 20)
@@ -42,20 +47,29 @@ struct ContentView: View {
                     .background(.black.opacity(0.75))
                     .clipShape(Capsule())
                 
+                // MARK: - card
                 ZStack {
-                    ForEach(0..<cards.count, id: \.self) { index in
-                        CardView(card: cards[index]) {
-                            withAnimation {
-                                removeCard(at: index)
+                    ForEach(cards) { card in
+                        CardView(card: card) { isIncorrect in
+                            if isIncorrect {
+                                withAnimation {
+                                    insertIncorrectCard(at: self.index(for: card))
+                                }
+                            } else {
+                                withAnimation {
+                                    removeCard(at: self.index(for: card))
+                                }
                             }
+                            
                         }
-                        .stacked(at: index, in: cards.count)
-                        .allowsHitTesting(index == cards.count - 1)
-                        .accessibilityHidden(index < cards.count - 1)
+                        .stacked(at: self.index(for: card), in: cards.count)
+                        .allowsHitTesting(self.index(for: card) == cards.count - 1)
+                        .accessibilityHidden(self.index(for: card) < cards.count - 1)
                     }
                 }
                 .allowsHitTesting(timeRemaining > 0)
                 
+                // MARK: - start button
                 if cards.isEmpty {
                     Button("Start Again", action: resetCards)
                         .padding()
@@ -66,6 +80,7 @@ struct ContentView: View {
                 }
             }
             
+            // MARK: - plus button to navigate edit cards view
             VStack {
                 HStack {
                     Spacer()
@@ -86,14 +101,16 @@ struct ContentView: View {
                 Spacer()
             }
             
+            // MARK: - accessibility
             if differentiateWithooutColor || voiceOverEnabled {
                 VStack {
                     Spacer()
                     
                     HStack {
+                        // MARK: - incorrect button
                         Button {
                             withAnimation {
-                                removeCard(at: cards.count - 1)
+                                insertIncorrectCard(at: cards.count - 1)
                             }
                         } label: {
                             Image(systemName: "xmark.circle")
@@ -106,6 +123,8 @@ struct ContentView: View {
                         
                         Spacer()
                         
+                        
+                        // MARK: - correct button
                         Button {
                             withAnimation {
                                 removeCard(at: cards.count - 1)
@@ -147,8 +166,8 @@ struct ContentView: View {
     
     func removeCard(at index: Int) {
         guard index >= 0 else { return }
-        cards.remove(at: index)
         
+        cards.remove(at: index)
         if cards.isEmpty {
             isActive = false
         }
@@ -156,8 +175,13 @@ struct ContentView: View {
     
     func resetCards() {
         timeRemaining = 100
-        isActive = true
         loadData()
+        
+        if cards.isEmpty {
+            isActive = false
+        } else {
+            isActive = true
+        }
     }
     
     func loadData() {
@@ -166,6 +190,23 @@ struct ContentView: View {
                 cards = decoded
             }
         }
+    }
+    
+    func saveData() {
+        if let data = try? JSONEncoder().encode(cards) {
+            UserDefaults.standard.set(data, forKey: ContentView.saveKey)
+        }
+    }
+    
+    func index(for card: Card) -> Int {
+        return cards.firstIndex(where: { $0.id == card.id }) ?? 0
+    }
+    
+    func insertIncorrectCard(at index: Int) {
+        let card = cards[index]
+        
+        removeCard(at: index)
+        cards.insert(card, at: 0)
     }
 }
 
