@@ -55,37 +55,15 @@ struct CardView: View {
             .padding(20)
             .multilineTextAlignment(.center)
         }
+        // smallest iPhones have a landscape width of 480 points
         .frame(width: 450, height: 280)
         .rotationEffect(.degrees(Double(offset.width / 5)))
         .offset(x: offset.width * 5, y: 0)
+        // start at 2 to keep it opaque until reaching 50 points
         .opacity(2 - Double(abs(offset.width / 50)))
         .accessibilityAddTraits(.isButton)
-        .gesture(
-            DragGesture()
-                .onChanged { gesture in
-                    offset = gesture.translation
-                    feedback.prepare()
-                }
-                .onEnded { _ in
-                    if abs(offset.width) > 100 {
-                        removal?(offset.width < 0)
-                        
-                        if offset.width < 0 {
-                            feedback.notificationOccurred(.error)
-                            
-                            isShowingAnswer = false
-                            offset = .zero
-                        }
-                        
-                        
-                    } else {
-                        offset = .zero
-                    }
-                }
-        )
-        .onTapGesture {
-            isShowingAnswer.toggle()
-        }
+        .gesture(dragGesture())
+        .onTapGesture { self.isShowingAnswer.toggle() }
         .animation(.spring(), value: offset)
     }
     
@@ -99,6 +77,30 @@ struct CardView: View {
         }
         
         return Color.white
+    }
+    
+    func dragGesture() -> some Gesture {
+        DragGesture()
+            .onChanged { gesture in
+                offset = gesture.translation
+                feedback.prepare()
+            }
+            .onEnded { _ in
+                if abs(offset.width) > 100 {
+                    removal?(offset.width < 0)
+                    
+                    if offset.width < 0 {
+                        feedback.notificationOccurred(.error)
+                        
+                        isShowingAnswer = false
+                        offset = .zero
+                    }
+                    
+                    
+                } else {
+                    offset = .zero
+                }
+            }
     }
 }
 

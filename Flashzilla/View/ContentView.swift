@@ -80,22 +80,14 @@ struct ContentView: View {
                 }
             }
             
-            // MARK: - plus button to navigate edit cards view
+            // MARK: - edit button to navigate edit cards view
             VStack {
                 HStack {
                     Spacer()
                     
-                    Button {
+                    ActionButton(systemImage: "plus.circle") {
                         showingEditScreen = true
-                    } label: {
-                        Image(systemName: "plus.circle")
                     }
-                    .padding()
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .background(.black.opacity(0.7))
-                    .clipShape(Circle())
-                    .padding()
                 }
                 
                 Spacer()
@@ -108,40 +100,26 @@ struct ContentView: View {
                     
                     HStack {
                         // MARK: - incorrect button
-                        Button {
+                        ActionButton(systemImage: "xmark.circle") {
                             withAnimation {
                                 insertIncorrectCard(at: cards.count - 1)
                             }
-                        } label: {
-                            Image(systemName: "xmark.circle")
-                                .padding()
-                                .background(.black.opacity(0.7))
-                                .clipShape(Circle())
                         }
                         .accessibilityLabel("Wrong")
                         .accessibilityHint("Mark your answer as being incorrect.")
                         
                         Spacer()
                         
-                        
                         // MARK: - correct button
-                        Button {
+                        ActionButton(systemImage: "checkmark.circle") {
                             withAnimation {
                                 removeCard(at: cards.count - 1)
                             }
-                        } label: {
-                            Image(systemName: "checkmark.circle")
-                                .padding()
-                                .background(.black.opacity(0.7))
-                                .clipShape(Circle())
                         }
                         .accessibilityLabel("Correct")
                         .accessibilityHint("Mark your answer as being correct.")
                     }
                 }
-                .font(.largeTitle)
-                .foregroundColor(.white)
-                .padding()
             }
         }
         .onReceive(timer) { time in
