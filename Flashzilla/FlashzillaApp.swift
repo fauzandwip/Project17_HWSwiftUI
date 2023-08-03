@@ -9,7 +9,8 @@ import SwiftUI
 
 @main
 struct FlashzillaApp: App {
-    @StateObject var dataController = UserDefaultsController()
+//    @StateObject var dataController: DataController = UserDefaultsController()
+    @StateObject var dataController: DataController = DocumentController()
     
     var body: some Scene {
         WindowGroup {

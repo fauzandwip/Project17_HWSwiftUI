@@ -11,7 +11,7 @@ import Combine
 @MainActor
 class ContentViewModel: ObservableObject {
     
-    @ObservedObject var dataController: UserDefaultsController
+    @ObservedObject var dataController: DataController
     
     @Published private(set) var cards = [Card]()
     @Published var timeRemaining = 100
@@ -20,7 +20,7 @@ class ContentViewModel: ObservableObject {
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
-    init(dataController: UserDefaultsController) {
+    init(dataController: DataController) {
         _dataController = ObservedObject(initialValue: dataController)
         loadData()
     }

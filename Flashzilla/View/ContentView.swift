@@ -20,9 +20,9 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     
     @StateObject var vm: ContentViewModel
-    @ObservedObject var dataController: UserDefaultsController
+    @ObservedObject var dataController: DataController
     
-    init(dataController: UserDefaultsController) {
+    init(dataController: DataController) {
         _vm = StateObject(wrappedValue: ContentViewModel(dataController: dataController))
         _dataController = ObservedObject(initialValue: dataController)
     }

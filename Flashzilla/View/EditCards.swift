@@ -12,7 +12,7 @@ struct EditCards: View {
     
     @StateObject private var vm: EditCardsViewModel
     
-    init(dataController: UserDefaultsController) {
+    init(dataController: DataController) {
         _vm = StateObject(wrappedValue: EditCardsViewModel(dataController: dataController))
     }
     

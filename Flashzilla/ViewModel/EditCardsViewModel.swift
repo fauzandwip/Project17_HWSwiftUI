@@ -9,16 +9,16 @@ import SwiftUI
 
 @MainActor
 class EditCardsViewModel: ObservableObject {
-    @ObservedObject var dataController: UserDefaultsController
+    @ObservedObject var dataController: DataController
     @Published var promptText = ""
     @Published var answerText = ""
     
-    init(dataController: UserDefaultsController) {
+    init(dataController: DataController) {
         _dataController = ObservedObject(initialValue: dataController)
     }
     
     func loadData() {
-        dataController.loadData()
+        dataController.load()
     }
     
     func addCard() {
