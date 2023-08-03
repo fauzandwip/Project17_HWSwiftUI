@@ -9,82 +9,54 @@ import SwiftUI
 
 struct EditCards: View {
     @Environment(\.dismiss) var dismiss
-    @State private var cards = [Card]()
-    @State private var promptText = ""
-    @State private var answerText = ""
+    
+    @StateObject private var vm: EditCardsViewModel
+    
+    init(dataController: UserDefaultsController) {
+        _vm = StateObject(wrappedValue: EditCardsViewModel(dataController: dataController))
+    }
+    
     
     var body: some View {
         NavigationView {
             List {
+                // MARK: - add card section
                 Section("New Card") {
-                    TextField("prompt", text: $promptText)
-                    TextField("answer", text: $answerText)
-                    Button("Add Card", action: addCard)
+                    TextField("prompt", text: $vm.promptText)
+                    TextField("answer", text: $vm.answerText)
+                    Button("Add Card") {
+                        withAnimation {
+                            vm.addCard()
+                        }
+                    }
                 }
                 
+                // MARK: - list card section
                 Section {
-                    ForEach(0..<cards.count, id: \.self) { index in
+                    ForEach(vm.dataController.cards) { card in
                         VStack(alignment: .leading) {
-                            Text(cards[index].prompt)
+                            Text(card.prompt)
                                 .font(.headline)
-                            Text(cards[index].answer)
+                            Text(card.answer)
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
                     }
-                    .onDelete(perform: removeCards)
+                    .onDelete { vm.removeCards(at: $0) }
                 }
             }
             .navigationTitle("Edit Cards")
             .toolbar {
-                Button("Done", action: done)
+                Button("Done") { dismiss() }
             }
-            .listStyle(.grouped)
-            .onAppear(perform: loadData)
+//            .listStyle()
+            .onAppear { vm.loadData() }
         }
-    }
-    
-    func done() {
-        dismiss()
-    }
-    
-    func loadData() {
-        if let data = UserDefaults.standard.data(forKey: ContentView.saveKey) {
-            if let decoded = try? JSONDecoder().decode([Card].self, from: data) {
-                cards = decoded
-            }
-        }
-    }
-    
-    func saveData() {
-        if let data = try? JSONEncoder().encode(cards) {
-            UserDefaults.standard.set(data, forKey: ContentView.saveKey)
-        }
-    }
-    
-    func addCard() {
-        // delete spaces before and after full text
-        // example: "  Taylor Swift  "" => "Taylor Swift"
-        let trimmedPrompt = promptText.trimmingCharacters(in: .whitespaces)
-        let trimmedAnswer = answerText.trimmingCharacters(in: .whitespaces)
-        guard !trimmedPrompt.isEmpty && !trimmedAnswer.isEmpty else { return }
-        
-        let card = Card(prompt: trimmedPrompt, answer: trimmedAnswer)
-        cards.insert(card, at: 0)
-        saveData()
-        
-        promptText = ""
-        answerText = ""
-    }
-    
-    func removeCards(at offsets: IndexSet) {
-        cards.remove(atOffsets: offsets)
-        saveData()
     }
 }
 
 struct EditView_Previews: PreviewProvider {
     static var previews: some View {
-        EditCards()
+        EditCards(dataController: UserDefaultsController())
     }
 }

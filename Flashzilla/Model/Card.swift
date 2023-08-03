@@ -8,7 +8,7 @@
 import Foundation
 
 struct Card: Codable, Identifiable {
-    let id = UUID()
+    var id = UUID()
     let prompt: String
     let answer: String
     

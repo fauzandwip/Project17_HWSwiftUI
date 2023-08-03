@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct FlashzillaApp: App {
+    @StateObject var dataController = UserDefaultsController()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(dataController: dataController)
         }
     }
 }

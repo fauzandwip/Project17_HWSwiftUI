@@ -26,6 +26,6 @@ struct ActionButton: View {
 
 struct ActionButton_Previews: PreviewProvider {
     static var previews: some View {
-        ActionButton(systemImage: "plus.circle", action: { print("Hellow") })
+        ActionButton(systemImage: "plus.circle", action: { print("Hello") })
     }
 }

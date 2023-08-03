@@ -19,13 +19,13 @@ struct ContentView: View {
     @Environment(\.accessibilityVoiceOverEnabled) var voiceOverEnabled
     @Environment(\.scenePhase) var scenePhase
     
-    @State private var cards = [Card]()
-    @State private var timeRemaining = 100
-    @State private var isActive = false
-    @State private var showingEditScreen = false
+    @StateObject var vm: ContentViewModel
+    @ObservedObject var dataController: UserDefaultsController
     
-    static let saveKey = "Cards"
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    init(dataController: UserDefaultsController) {
+        _vm = StateObject(wrappedValue: ContentViewModel(dataController: dataController))
+        _dataController = ObservedObject(initialValue: dataController)
+    }
     
     var body: some View {
         ZStack {
@@ -39,7 +39,7 @@ struct ContentView: View {
             VStack {
                 
                 // MARK: - time
-                Text("Time: \(timeRemaining)")
+                Text("Time: \(vm.timeRemaining)")
                     .font(.title)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 5)
@@ -49,34 +49,23 @@ struct ContentView: View {
                 
                 // MARK: - card
                 ZStack {
-                    ForEach(cards) { card in
-                        CardView(card: card) { isIncorrect in
-                            if isIncorrect {
-                                withAnimation {
-                                    insertIncorrectCard(at: self.index(for: card))
-                                }
-                            } else {
-                                withAnimation {
-                                    removeCard(at: self.index(for: card))
-                                }
-                            }
-                            
-                        }
-                        .stacked(at: self.index(for: card), in: cards.count)
-                        .allowsHitTesting(self.index(for: card) == cards.count - 1)
-                        .accessibilityHidden(self.index(for: card) < cards.count - 1)
+                    ForEach(vm.cards) { card in
+                        CardView(card: card, contentVM: vm)
+                            .stacked(at: vm.index(for: card), in: vm.cards.count)
+                            .allowsHitTesting(vm.index(for: card) == vm.cards.count - 1)
+                            .accessibilityHidden(vm.index(for: card) < vm.cards.count - 1)
                     }
                 }
-                .allowsHitTesting(timeRemaining > 0)
+                .allowsHitTesting(vm.timeRemaining > 0)
                 
                 // MARK: - start button
-                if cards.isEmpty {
-                    Button("Start Again", action: resetCards)
-                        .padding()
-                        .foregroundColor(.black)
-                        .background(.white)
-                        .clipShape(Capsule())
-                        .padding(.vertical)
+                if vm.cards.isEmpty {
+                    Button("Start Again") { vm.resetCards() }
+                    .padding()
+                    .foregroundColor(.black)
+                    .background(.white)
+                    .clipShape(Capsule())
+                    .padding(.vertical)
                 }
             }
             
@@ -86,7 +75,7 @@ struct ContentView: View {
                     Spacer()
                     
                     ActionButton(systemImage: "plus.circle") {
-                        showingEditScreen = true
+                        vm.showEditScreen()
                     }
                 }
                 
@@ -102,7 +91,7 @@ struct ContentView: View {
                         // MARK: - incorrect button
                         ActionButton(systemImage: "xmark.circle") {
                             withAnimation {
-                                insertIncorrectCard(at: cards.count - 1)
+                                vm.insertIncorrectCard(at: vm.cards.count - 1)
                             }
                         }
                         .accessibilityLabel("Wrong")
@@ -113,7 +102,7 @@ struct ContentView: View {
                         // MARK: - correct button
                         ActionButton(systemImage: "checkmark.circle") {
                             withAnimation {
-                                removeCard(at: cards.count - 1)
+                                vm.removeCard(at: vm.cards.count - 1)
                             }
                         }
                         .accessibilityLabel("Correct")
@@ -122,74 +111,17 @@ struct ContentView: View {
                 }
             }
         }
-        .onReceive(timer) { time in
-            guard isActive else { return }
-            
-            if timeRemaining > 0 {
-                timeRemaining -= 1
-            }
+        .onReceive(vm.timer, perform: vm.onReceiveTimer)
+        .onChange(of: scenePhase, perform: vm.onChangeScenePhase)
+        .sheet(isPresented: $vm.showingEditScreen, onDismiss: vm.resetCards) {
+            EditCards(dataController: dataController)
         }
-        .onChange(of: scenePhase) { newValue in
-            if newValue == .active {
-                if !cards.isEmpty {
-                    isActive = true
-                }
-            } else {
-                isActive = false
-            }
-        }
-        .sheet(isPresented: $showingEditScreen, onDismiss: resetCards, content: EditCards.init)
-        .onAppear(perform: resetCards)
-    }
-    
-    func removeCard(at index: Int) {
-        guard index >= 0 else { return }
-        
-        cards.remove(at: index)
-        if cards.isEmpty {
-            isActive = false
-        }
-    }
-    
-    func resetCards() {
-        timeRemaining = 100
-        loadData()
-        
-        if cards.isEmpty {
-            isActive = false
-        } else {
-            isActive = true
-        }
-    }
-    
-    func loadData() {
-        if let data = UserDefaults.standard.data(forKey: ContentView.saveKey) {
-            if let decoded = try? JSONDecoder().decode([Card].self, from: data) {
-                cards = decoded
-            }
-        }
-    }
-    
-    func saveData() {
-        if let data = try? JSONEncoder().encode(cards) {
-            UserDefaults.standard.set(data, forKey: ContentView.saveKey)
-        }
-    }
-    
-    func index(for card: Card) -> Int {
-        return cards.firstIndex(where: { $0.id == card.id }) ?? 0
-    }
-    
-    func insertIncorrectCard(at index: Int) {
-        let card = cards[index]
-        
-        removeCard(at: index)
-        cards.insert(card, at: 0)
+        .onAppear(perform: vm.resetCards)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(dataController: UserDefaultsController())
     }
 }
