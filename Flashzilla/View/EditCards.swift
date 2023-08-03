@@ -32,7 +32,7 @@ struct EditCards: View {
                 }
                 
                 // MARK: - list card section
-                Section {
+                Section(vm.dataController.cards.count > 1 ? "Cards" : "Card") {
                     ForEach(vm.dataController.cards) { card in
                         VStack(alignment: .leading) {
                             Text(card.prompt)
@@ -49,7 +49,7 @@ struct EditCards: View {
             .toolbar {
                 Button("Done") { dismiss() }
             }
-//            .listStyle()
+            .listStyle(.grouped)
             .onAppear { vm.loadData() }
         }
     }

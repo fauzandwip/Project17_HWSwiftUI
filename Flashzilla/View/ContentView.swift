@@ -40,7 +40,7 @@ struct ContentView: View {
                 
                 // MARK: - time
                 Text("Time: \(vm.timeRemaining)")
-                    .font(.title)
+                    .font(.largeTitle)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 5)
                     .foregroundColor(.white)
@@ -48,18 +48,20 @@ struct ContentView: View {
                     .clipShape(Capsule())
                 
                 // MARK: - card
-                ZStack {
-                    ForEach(vm.cards) { card in
-                        CardView(card: card, contentVM: vm)
-                            .stacked(at: vm.index(for: card), in: vm.cards.count)
-                            .allowsHitTesting(vm.index(for: card) == vm.cards.count - 1)
-                            .accessibilityHidden(vm.index(for: card) < vm.cards.count - 1)
+                    if vm.timeRemaining != 0 {
+                        ZStack {
+                            ForEach(vm.cards) { card in
+                                CardView(card: card, contentVM: vm)
+                                    .stacked(at: vm.index(for: card), in: vm.cards.count)
+                                    .allowsHitTesting(vm.index(for: card) == vm.cards.count - 1)
+                                    .accessibilityHidden(vm.index(for: card) < vm.cards.count - 1)
+                            }
+                        }
+                        .allowsHitTesting(vm.timeRemaining > 0)
                     }
-                }
-                .allowsHitTesting(vm.timeRemaining > 0)
                 
                 // MARK: - start button
-                if vm.cards.isEmpty {
+                if vm.cards.isEmpty || vm.timeRemaining == 0 {
                     Button("Start Again") { vm.resetCards() }
                     .padding()
                     .foregroundColor(.black)
